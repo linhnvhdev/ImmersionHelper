@@ -9,6 +9,8 @@
         public string Readings { get; set; }
 
         public string Meaning { get; set; }
+
+        public string Source { get; set; }
         public VocabularyCategory Category { get; set; }
         public ICollection<UserVocabulary> UserVocabularies { get; set; }
     }
