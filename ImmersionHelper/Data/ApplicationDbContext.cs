@@ -6,10 +6,10 @@ namespace ImmersionHelper.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public DbSet<Vocabulary> Vocabularies;
-        public DbSet<UserVocabulary> UserVocabularies;
-        public DbSet<Article> Articles;
-        public DbSet<UserArticle> UserArticles;
+        public DbSet<Vocabulary> Vocabularies { get; set; }
+        public DbSet<UserVocabulary> UserVocabularies { get; set; }
+        public DbSet<Article> Articles { get; set; }
+        public DbSet<UserArticle> UserArticles { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

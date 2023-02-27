@@ -1,0 +1,16 @@
+﻿@page
+@model ImmersionHelper.Pages.Admin.TestPageModel
+@{
+}
+
+
+<div>version: @Model.Input.Root.version</div>
+<div>Common Only: @Model.Input.Root.commonOnly</div>
+<div>Count: @Model.Input.Root.words.Count</div>
+<ul>
+    @for(int i = 0;i < 100;i++)
+    {
+        <li>@Model.Input.Root.words.ElementAt(i).kana.First().text</li>
+    }
+</ul>
+<br />

@@ -1,6 +1,8 @@
 using ImmersionHelper.Data;
+using ImmersionHelper.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Nodes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddSingleton<IMyDictionary, JLPTDictionary>();
+builder.Services.AddSingleton<IMyDictionary, JMDictDictionary>();
+builder.Services.AddScoped<DictionaryServices>();
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -46,6 +53,7 @@ var app = builder.Build();
 
 // create default role and default admin user
 await CreateRoles();
+CreateVocabularyData();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -98,6 +106,27 @@ async Task CreateRoles()
         if (result.Succeeded)
         {
             var roleResult = await userManager.AddToRoleAsync(user, "Admin");
+        }
+    }
+}
+
+void CreateVocabularyData()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        // Check if Vocabularies table is empty
+        if (!dbContext.Vocabularies.Any())
+        {
+            var dicServices = scope.ServiceProvider.GetRequiredService<DictionaryServices>();
+            List<Vocabulary> vocabularies = dicServices != null ? dicServices.GetAllVocabularies() : null;
+            // add to database
+            if (vocabularies != null)
+            {
+                dbContext.AddRange(vocabularies);
+                dbContext.SaveChanges();
+            }
         }
     }
 }
