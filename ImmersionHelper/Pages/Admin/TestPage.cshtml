@@ -3,14 +3,16 @@
 @{
 }
 
-
-<div>version: @Model.Input.Root.version</div>
-<div>Common Only: @Model.Input.Root.commonOnly</div>
-<div>Count: @Model.Input.Root.words.Count</div>
-<ul>
-    @for(int i = 0;i < 100;i++)
+<div>
+    @foreach(var item in Model.Input.Links)
     {
-        <li>@Model.Input.Root.words.ElementAt(i).kana.First().text</li>
+        <a href="@item.Links">@item.Links</a>
+        <br />
+        <div>
+            @Html.Raw(item.content)
+        </div>
+        <br />
+        <br />
     }
-</ul>
+</div>
 <br />

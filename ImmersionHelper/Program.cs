@@ -14,6 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddSingleton<IMyDictionary, JLPTDictionary>();
 builder.Services.AddSingleton<IMyDictionary, JMDictDictionary>();
 builder.Services.AddScoped<DictionaryServices>();
+builder.Services.AddScoped<ArticlesServices>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -53,7 +54,10 @@ var app = builder.Build();
 
 // create default role and default admin user
 await CreateRoles();
+
 CreateVocabularyData();
+
+CreateArticleData();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -114,19 +118,16 @@ void CreateVocabularyData()
 {
     using (var scope = app.Services.CreateScope())
     {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var dicServices = scope.ServiceProvider.GetRequiredService<DictionaryServices>();
+        dicServices.InitData();
+    }
+}
 
-        // Check if Vocabularies table is empty
-        if (!dbContext.Vocabularies.Any())
-        {
-            var dicServices = scope.ServiceProvider.GetRequiredService<DictionaryServices>();
-            List<Vocabulary> vocabularies = dicServices != null ? dicServices.GetAllVocabularies() : null;
-            // add to database
-            if (vocabularies != null)
-            {
-                dbContext.AddRange(vocabularies);
-                dbContext.SaveChanges();
-            }
-        }
+void CreateArticleData()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var articlesServices = scope.ServiceProvider.GetRequiredService<ArticlesServices>();
+        articlesServices.InitData();
     }
 }
