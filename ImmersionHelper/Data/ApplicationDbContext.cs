@@ -15,7 +15,7 @@ namespace ImmersionHelper.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-
+            base.Database.SetCommandTimeout(60);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

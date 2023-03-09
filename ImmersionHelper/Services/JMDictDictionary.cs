@@ -1,14 +1,24 @@
 ﻿using ImmersionHelper.Data;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using static ImmersionHelper.Data.JMDictData;
 
 namespace ImmersionHelper.Services
 {
     public class JMDictDictionary : IMyDictionary
     {
-
+        private readonly ApplicationDbContext _dbContext;
         public const string JMDICT_VOCAB_LIST = "jmdict-eng-3.3.1.json";
-        public List<Vocabulary> GetVocabularies()
+        public const string DICT_NAME = "JMDict";
+
+        public JMDictDictionary(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public List<Vocabulary> InitVocabularies()
         {
             List<Vocabulary> vocabularies = new List<Vocabulary>();
             // Deserialize json file
@@ -24,7 +34,7 @@ namespace ImmersionHelper.Services
                 vocabularies.Add(new Vocabulary
                 {
                     Word = kanjis.Any() ? kanjis.FirstOrDefault().text : kanas.FirstOrDefault().text,
-                    Meaning = JsonConvert.SerializeObject(senses),
+                    Meaning = SensesToMeaning(senses),
                     Pronunciation = kanas.FirstOrDefault().text,
                     Readings = string.Join(",", kanjis.Select(v => v.text)) + ","
                               + string.Join(",", kanas.Select(v => v.text)),
@@ -33,6 +43,21 @@ namespace ImmersionHelper.Services
                 });
             }
             return vocabularies;
+        }
+
+        public static string SensesToMeaning(List<Sense> senses)
+        {
+            StringBuilder meaning = new StringBuilder();
+            for(int i = 0;i < senses.Count; i++)
+            {
+                var sense = senses[i];
+                meaning.Append(i + ". ");
+                meaning.Append(string.Join(",", sense.gloss.Select(x => x.text)));
+                meaning.AppendLine();
+
+            }
+            string finalMeaning =  meaning.ToString();
+            return finalMeaning;
         }
     }
 }

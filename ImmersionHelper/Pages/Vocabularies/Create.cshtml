@@ -1,0 +1,104 @@
+﻿@page
+@model ImmersionHelper.Pages.Vocabularies.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>UserVocabulary</h4>
+<hr />
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="text-success">@TempData["SuccessMessage"]</div>
+}
+<div asp-validation-summary="All"></div>
+<div class="row m-3">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="text" id="vocabulary-search" class="form-control" placeholder="Search">
+            <select asp-for="UserVocabulary.VocabularyId" onchange="Update(value)">
+                <option value="-1">Choose word after search</option>
+            </select>
+            <div class="form-group m-2">
+                <label asp-for="UserVocabulary.Front" class="control-label"></label>
+                <input asp-for="UserVocabulary.Front" class="form-control" />
+                <span asp-validation-for="UserVocabulary.Front" class="text-danger"></span>
+            </div>
+            <div class="form-group m-2">
+                <label asp-for="UserVocabulary.Back" class="control-label"></label>
+                <textarea asp-for="UserVocabulary.Back" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="UserVocabulary.Back" class="text-danger"></span>
+            </div>
+            <div class="form-group m-2">
+                <label asp-for="UserVocabulary.Hint" class="control-label"></label>
+                <input asp-for="UserVocabulary.Hint" class="form-control" value="None" />
+                <span asp-validation-for="UserVocabulary.Hint" class="text-danger"></span>
+            </div>
+            <div class="form-group m-2">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        var front = new Object();
+        var back = new Object();
+        $(document).ready(function () {
+            var typingTimer;
+            var doneTypingInterval = 1000;
+
+            $('#vocabulary-search').on('input', function () {
+                clearTimeout(typingTimer);
+                var searchTerm = $(this).val();
+                if(searchTerm){
+                    typingTimer = setTimeout(function () { doneTyping(searchTerm);}, doneTypingInterval);
+                }
+                
+            });
+            function doneTyping(searchTerm) {
+                $.ajax({
+                    url: 'Create?handler=SearchVocabulary',
+                    method: 'GET',
+                    data: {
+                        searchString: searchTerm
+                    },
+                    success: function (data) {
+                        var vocabularyList = $('#UserVocabulary_VocabularyId');
+                        console.log("at least it success");
+                        vocabularyList.empty();
+                        vocabularyList.append('<option value="-1">Choose word after search</option>');
+                        console.log(data);
+                        $.each(data, function (index, value) {
+                            console.log(value);
+                            var listItem = $(`<option value="${value.id}">${value.word}(${value.pronunciation})(${value.source})</option>`);
+                            front[value.id] = value.word;
+                            back[value.id] = value.meaning;
+                            vocabularyList.append(listItem);
+                        });
+                    }
+                });
+            }
+            
+        });
+        function Update(id) {
+            console.log("update called");
+            console.log(id);
+            console.log(front);
+            console.log(back);
+            $('#UserVocabulary_Front').attr("value", front[id]);
+            $('#UserVocabulary_Back').empty();
+            $('#UserVocabulary_Back').append(back[id]);
+        }
+
+    </script>
+}

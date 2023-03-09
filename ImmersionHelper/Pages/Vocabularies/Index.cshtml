@@ -1,0 +1,97 @@
+﻿@page
+@model ImmersionHelper.Pages.Vocabularies.IndexModel
+@{
+    ViewData["Title"] = "My Vocabulary List";
+    Layout = "_Layout";
+    var prevDisabled = (Model.PageIndex == 1) ? "disabled" : "";
+    var nextDisabled = (Model.PageIndex == Model.TotalPages) ? "disabled" : "";
+}
+
+<div class="container">
+
+    <h1>User Vocabularies</h1>
+    <div class="m-4">
+        <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#search-bar">Search</button>
+        <a asp-page="Index" class="btn btn-primary">Reset</a>
+    </div>
+    <div class="collapse" id="search-bar">
+        <form method="get" class="m-4">
+            <div class="form-group">
+                <label asp-for="FilterData.Front"></label>
+                <input class="form-control" asp-for="FilterData.Front" />
+                <span asp-validation-for="FilterData.Front"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FilterData.Back"></label>
+                <input class="form-control" asp-for="FilterData.Back" />
+                <span asp-validation-for="FilterData.Back"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FilterData.Hint"></label>
+                <input class="form-control" asp-for="FilterData.Hint" />
+                <span asp-validation-for="FilterData.Hint"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FilterData.IsDateSort"></label>
+                <input asp-for="FilterData.IsDateSort" />
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+    <a class="btn btn-success" asp-page="Create">Add new</a>
+    @if(Model.UserVocabularies.Count == 0)
+    {
+        <div>No Vocabulary found, please add more vocabulary</div>
+    }
+    else{
+        <h3>Total: @Model.TotalCount</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Front</th>
+                    <th>Back</th>
+                    <th>Hint</th>
+                    <th>Review Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var userVocabulary in Model.UserVocabularies)
+                {
+                    <tr>
+                        <td>@userVocabulary.Front</td>
+                        <td>@userVocabulary.Back</td>
+                        <td>@userVocabulary.Hint</td>
+                        <td>@userVocabulary.ReviewDate.ToShortDateString()</td>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-info" asp-page="Details" asp-route-id="@userVocabulary.VocabularyId">Details</a>
+                                <a class="btn btn-primary" asp-page="Edit" asp-route-id="@userVocabulary.VocabularyId">Edit</a>
+                                <a class="btn btn-danger" asp-page="Delete" asp-route-id="@userVocabulary.VocabularyId">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <a asp-page="Index"
+           asp-route-pageIndex="@(Model.PageIndex - 1)"
+           asp-route-FilterData.Back="@Model.FilterData.Back"
+           asp-route-FilterData.Front="@Model.FilterData.Front"
+           asp-route-FilterData.Hint="@Model.FilterData.Hint"
+           asp-route-FilterData.IsDateSort="@Model.FilterData.IsDateSort"
+           class="btn btn-primary @prevDisabled">
+            Previous
+        </a>
+        <span>Page @($"{Model.PageIndex} / {@Model.TotalPages}")</span>
+        <a asp-page="Index"
+           asp-route-pageIndex="@(Model.PageIndex + 1)"
+           asp-route-FilterData.Back="@Model.FilterData.Back"
+           asp-route-FilterData.Front="@Model.FilterData.Front"
+           asp-route-FilterData.Hint="@Model.FilterData.Hint"
+           asp-route-FilterData.IsDateSort="@Model.FilterData.IsDateSort"
+           class="btn btn-primary @nextDisabled">
+            Next
+        </a>
+    }
+</div>

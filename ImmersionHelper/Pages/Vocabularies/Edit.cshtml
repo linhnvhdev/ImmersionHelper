@@ -1,0 +1,48 @@
+﻿@page "{id}"
+@model ImmersionHelper.Pages.Vocabularies.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>UserVocabulary</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="UserVocabulary.ApplicationUserId" />
+            <input type="hidden" asp-for="UserVocabulary.VocabularyId" />
+            <div class="form-group">
+                <label asp-for="UserVocabulary.Front" class="control-label"></label>
+                <input asp-for="UserVocabulary.Front" class="form-control" />
+                <span asp-validation-for="UserVocabulary.Front" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserVocabulary.Back" class="control-label"></label>
+                <textarea asp-for="UserVocabulary.Back" class="form-control" rows="6"></textarea>
+                <span asp-validation-for="UserVocabulary.Back" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserVocabulary.Hint" class="control-label"></label>
+                <input asp-for="UserVocabulary.Hint" class="form-control" />
+                <span asp-validation-for="UserVocabulary.Hint" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="UserVocabulary.NextReviewInterval" class="form-control" />
+            <input type="hidden" asp-for="UserVocabulary.ReviewDate" class="form-control" />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

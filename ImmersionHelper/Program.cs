@@ -9,10 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, 
+    sqlServerOptions => sqlServerOptions.CommandTimeout(builder.Configuration.GetValue<int>("SqlCommandTimeout"))));
 
-builder.Services.AddSingleton<IMyDictionary, JLPTDictionary>();
-builder.Services.AddSingleton<IMyDictionary, JMDictDictionary>();
+builder.Services.AddScoped<IMyDictionary, JLPTDictionary>();
+builder.Services.AddScoped<IMyDictionary, JMDictDictionary>();
 builder.Services.AddScoped<DictionaryServices>();
 builder.Services.AddScoped<ArticlesServices>();
 

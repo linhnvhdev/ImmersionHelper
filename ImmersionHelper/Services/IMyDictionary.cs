@@ -4,8 +4,7 @@ namespace ImmersionHelper.Services
 {
     public interface IMyDictionary
     {
-        public List<Vocabulary> GetVocabularies();
-
+        public List<Vocabulary> InitVocabularies();
 
     }
 }
