@@ -13,5 +13,6 @@
 
         public int IsRightLevel { get; set; }
 
+        public int WordKnowCount { get; set; }
     }
 }

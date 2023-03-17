@@ -1,0 +1,58 @@
+﻿@page
+@model ImmersionHelper.Pages.Vocabularies.CreateRangeModel
+@{
+    ViewData["Title"] = "Add base vocabulary";
+}
+
+<h1>Add base vocabulary</h1>
+
+<h2>Add your base vocabulary base on your current level:</h2>
+<div>
+    <form method="post" asp-page-handler="JLPT" id="add-vovabulary-form">
+        <input type="button" name="JLPTLevel" value="N1" class="btn btn-outline-primary btn-lg" onclick="AddWord('N1')" />
+        <input type="button" name="JLPTLevel" value="N2" class="btn btn-outline-info btn-lg" onclick="AddWord('N2')" />
+        <input type="button" name="JLPTLevel" value="N3" class="btn btn-outline-danger btn-lg" onclick="AddWord('N3')" />
+        <input type="button" name="JLPTLevel" value="N4" class="btn btn-outline-secondary btn-lg" onclick="AddWord('N4')" />
+        <input type="button" name="JLPTLevel" value="N5" class="btn btn-outline-success btn-lg" onclick="AddWord('N5')" />
+    </form>
+    <div id="message">
+
+    </div>
+</div>
+<h2>Add your vocabulary in Anki:</h2>
+<div>
+    <form method="post" asp-page-handler="Anki">
+        <input type="submit" name="Anki" value="Import" class="btn btn-primary" />
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function AddWord(level) {
+            var data = $("#add-vocabulary-form").serialize();
+            console.log('it works at least');
+            $('#message').empty();
+            $('#message').append('Adding vocabulary in progress, this may take serveral minutes');
+            $.ajax({
+                type: 'GET',
+                url: '/Vocabularies/CreateRange?handler=JLPT',
+                data: {
+                    JLPTLevel: level
+                },
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8', // when we use .serialize() this generates the data in query string format. this needs the default contentType (default content type is: contentType: 'application/x-www-form-urlencoded; charset=UTF-8') so it is optional, you can remove it
+                success: function (result) {
+                    console.log('ok');
+                    $('#message').empty();
+                    $('#message').append(result.message);
+                },
+                error: function () {
+                    console.log('Failed ');
+                }
+            })
+        }
+
+    </script>
+}

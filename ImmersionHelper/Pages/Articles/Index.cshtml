@@ -3,46 +3,95 @@
 
 @{
     ViewData["Title"] = "Index";
+    var prevDisabled = (Model.PageIndex == 1) ? "disabled" : "";
+    var nextDisabled = (Model.PageIndex == Model.TotalPages) ? "disabled" : "";
 }
 
 <h1>Index</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Article[0].Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Article[0].Content)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Article[0].Link)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Article) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Content)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Link)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<div class="m-4">
+    <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#search-bar">Search</button>
+    <a asp-page="Index" class="btn btn-primary">Reset</a>
+</div>
+<div class="collapse" id="search-bar">
+    <form method="get" class="m-4">
+        <div class="form-group m-3">
+            <label asp-for="FilterData.Title"></label>
+            <input class="form-control" asp-for="FilterData.Title" />
+        </div>
+        <div class="form-group m-3">
+            <label asp-for="FilterData.PageSource"></label>
+            <select asp-for="FilterData.PageSource" asp-items="Model.PageSourceList">
+            </select>
+        </div>
+        <div class="form-group m-4">
+            <label asp-for="FilterData.SortBy"></label>
+            <select asp-for="FilterData.SortBy">
+                <option value="Most Word you know">Most % Word you know</option>
+                <option value="Least Word you know">Least % Word you know</option>
+                <option value="Most Character count">Most Character count</option>
+                <option value="Least Character count">Least Character count</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+<a class="btn btn-success" asp-page="Create">Add new</a>
+
+<h3>@Model.TotalCount Found</h3>
+
+@foreach(var userArticle in Model.UserArticles)
+{
+    <div class="container">
+        <div class="row text-lg-start">
+            <a asp-page="Details" asp-route-id="@userArticle.Article.Id">@userArticle.Article.Title</a>
+        </div>
+        <div class="row text-md-start">
+            <div class="col-md-1 d-flex align-items-center">
+                <div>Information:</div>
+            </div>
+            <div class="col-md-9 m-4">
+                <div>
+                    <p><strong>Page Source: </strong> @userArticle.Article.PageSource.PageTitle</p>
+                </div>
+                <div>
+                    <p><strong>Link to source: </strong><a href="@userArticle.Article.Link">Go to page</a></p>
+                </div>
+                <div>
+                    <p><strong>Word Count: </strong>@userArticle.Article.CharacterCount</p>
+                </div>
+                <div>
+                    <p>
+                        <strong>N5 Word: </strong> @userArticle.Article.N5WordCount |
+                        <strong>N4 Word: </strong> @userArticle.Article.N4WordCount |
+                        <strong>N3 Word: </strong> @userArticle.Article.N3WordCount |
+                        <strong>N2 Word: </strong> @userArticle.Article.N2WordCount |
+                        <strong>N1 Word: </strong> @userArticle.Article.N1WordCount |
+                    </p>
+                </div>
+                <div>
+                    <p><strong>Word you know: </strong>@userArticle.WordKnowCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
 }
-    </tbody>
-</table>
+
+<a asp-page="Index"
+   asp-route-pageIndex="@(Model.PageIndex - 1)"
+   asp-route-FilterData.Title="@Model.FilterData.Title"
+   asp-route-FilterData.PageSource="@Model.FilterData.PageSource"
+   asp-route-FilterData.SortBy="@Model.FilterData.SortBy"
+   class="btn btn-primary @prevDisabled">
+    Previous
+</a>
+<span>Page @($"{Model.PageIndex} / {@Model.TotalPages}")</span>
+<a asp-page="Index"
+   asp-route-pageIndex="@(Model.PageIndex + 1)"
+   asp-route-FilterData.Title="@Model.FilterData.Title"
+   asp-route-FilterData.PageSource="@Model.FilterData.PageSource"
+   asp-route-FilterData.SortBy="@Model.FilterData.SortBy"
+   class="btn btn-primary @nextDisabled">
+    Next
+</a>

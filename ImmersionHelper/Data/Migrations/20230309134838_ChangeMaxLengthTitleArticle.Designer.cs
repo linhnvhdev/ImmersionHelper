@@ -4,6 +4,7 @@ using ImmersionHelper.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ImmersionHelper.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230309134838_ChangeMaxLengthTitleArticle")]
+    partial class ChangeMaxLengthTitleArticle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,9 +105,6 @@ namespace ImmersionHelper.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CharacterCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -114,21 +113,6 @@ namespace ImmersionHelper.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
-
-                    b.Property<int>("N1WordCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("N2WordCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("N3WordCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("N4WordCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("N5WordCount")
-                        .HasColumnType("int");
 
                     b.Property<int>("PageSourceId")
                         .HasColumnType("int");
@@ -248,9 +232,6 @@ namespace ImmersionHelper.Data.Migrations
 
                     b.Property<bool>("IsSaved")
                         .HasColumnType("bit");
-
-                    b.Property<int>("WordKnowCount")
-                        .HasColumnType("int");
 
                     b.HasKey("ArticleId", "ApplicationUserId");
 

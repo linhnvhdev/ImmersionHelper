@@ -1,37 +1,126 @@
-﻿@page
+﻿@page "{id?}"
 @model ImmersionHelper.Pages.Articles.DetailsModel
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
 <div>
-    <h4>Article</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Article.Title)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Article.Title)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Article.Content)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Article.Content)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Article.Link)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Article.Link)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.Article?.Id">Edit</a> |
     <a asp-page="./Index">Back to List</a>
 </div>
+    
+<div class="container">
+    <div class="row">
+        <div class="col-9 border border-3">
+            <div class="p-3 text-center">
+                <h2>
+                    @Model.CurArticle.Title
+                </h2>
+            </div>
+            <hr />
+            <div>
+                Link to article: <a href="@Model.CurArticle.Link">Link</a>
+            </div>
+            <div class="main-content m-3 p-3" >
+                @Html.Raw(Model.CurArticle.Content)
+            </div>
+        </div>
+        <div class="col-3 border border-3">
+            <div class="position-fixed">
+                <h3>Search</h3>
+                <form method="post" id="add-vocabulary-form">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <span id="success-message" class="text-success"></span>
+                    <span id="search-fail-message" class="text-danger"></span>
+                    <input type="text" id="vocabulary-search" class="form-control" placeholder="Search">
+                    <div id="search-result">
+                        
+                        <input asp-for="Input.Id" hidden />
+                        <div class="form-group">
+                            Word: 
+                            <br />
+                            <input asp-for="Input.Front" />
+                        </div>
+                        <div class="form-group">
+                            Meaning: 
+                            <textarea asp-for="Input.Back" class="form-control" rows="8"></textarea>
+                        </div>
+                        <input type="button" class="btn btn-primary" id="add-word-button" value="Add word to vocabulary" onclick="AddWord()" hidden/>
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            var typingTimer;
+            var doneTypingInterval = 1000;
+
+            $('#vocabulary-search').on('input', function () {
+                clearTimeout(typingTimer);
+                var searchTerm = $(this).val();
+                if (searchTerm) {
+                    typingTimer = setTimeout(function () { doneTyping(searchTerm); }, doneTypingInterval);
+                }
+            });
+            function doneTyping(searchTerm) {
+                $.ajax({
+                    url: 'Details?handler=SearchVocabulary',
+                    method: 'GET',
+                    data: {
+                        searchString: searchTerm
+                    },
+                    success: function (data) {
+                        var searchResult = $('#search-result');
+                        console.log("at least it success");
+                        //searchResult.empty();
+                        console.log(data);
+                        if(data.length == 0){
+                            $('#search-fail-message').empty();
+                            $('#search-fail-message').append("Search fail");
+                            $('#Input_Id').attr("value", "");
+                            $('#Input_Front').attr("value", "");
+                            $('#Input_Back').empty();
+                        }
+                        $.each(data, function (index, value) {
+                            $('#Input_Id').attr("value", value.id);
+                            $('#Input_Front').attr("value", value.word);
+                            $('#Input_Back').empty();
+                            $('#Input_Back').append(value.meaning);
+                            $('#add-word-button').removeAttr('hidden');
+                        });
+                    }
+                });
+            }
+
+        });
+
+        function AddWord() {
+            var data = $("#add-vocabulary-form").serialize();
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                url: '/Articles/Details',
+                data: data,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8', // when we use .serialize() this generates the data in query string format. this needs the default contentType (default content type is: contentType: 'application/x-www-form-urlencoded; charset=UTF-8') so it is optional, you can remove it
+                success: function (result) {
+                    $('#success-message').empty();
+                    $('#success-message').append(result.message);
+                    $('#add-word-button').attr('hidden',true);
+                    console.log(result);
+                },
+                error: function () {
+                    console.log('Failed ');
+                }
+            })
+        }
+
+    </script>
+}

@@ -1,26 +1,35 @@
 ﻿using HtmlAgilityPack;
 using ImmersionHelper.Data;
 using ImmersionHelper.Data.Migrations;
+using ImmersionHelper.Utilities;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Policy;
 using System.Text;
+using System.Xml.Linq;
 
 namespace ImmersionHelper.Services
 {
     public class ArticlesServices
     {
         private ApplicationDbContext _dbContext;
+        private DictionaryServices _dictionaryServices;
         private HtmlWeb Web { get; set; } = new HtmlWeb
         {
             OverrideEncoding = Encoding.UTF8,
         };
 
-        public ArticlesServices(ApplicationDbContext dbContext)
+        public ArticlesServices(ApplicationDbContext dbContext, DictionaryServices dictionaryServices)
         {
             _dbContext = dbContext;
+            _dictionaryServices = dictionaryServices;
         }
 
         public void InitData()
         {
+            if (!_dbContext.PageSources.Any())
+            {
+                InitPageSources();
+            }
             var pageSources = _dbContext.PageSources.ToList();
             if (!_dbContext.Articles.Any())
             {
@@ -31,6 +40,58 @@ namespace ImmersionHelper.Services
                     _dbContext.SaveChanges();
                 }
             }
+        }
+
+        private void InitPageSources()
+        {
+            List<PageSource> list = new List<PageSource>()
+            {
+                new PageSource
+                {
+                    PageTitle = "yomiuri",
+                    MainPageUrl = @"https://www.yomiuri.co.jp/",
+                    // short story of syosetsu
+                    PageLink = @"https://www.yomiuri.co.jp/news/",
+                    MainSectionPath = ".//div[@class='news-top-latest']",
+                    IsLinkAbsolute = true,
+                    IsImageLinkAbsolute = false,
+                    ArticleContentPath = ".//div[@class='p-main-contents ']"
+
+                },
+                new PageSource
+                {
+                    PageTitle = "nishinippon",
+                    MainPageUrl = @"https://www.nishinippon.co.jp/",
+                    PageLink = @"https://www.nishinippon.co.jp/theme/easy_japanese/",
+                    MainSectionPath = ".//div[@class='c-articleList']",
+                    IsLinkAbsolute = false,
+                    IsImageLinkAbsolute = false,
+                    ArticleContentPath = ".//article[@class='articleDetail-content']"
+                },
+                new PageSource
+                {
+                    PageTitle = "syosetu",
+                    MainPageUrl = @"https://ncode.syosetu.com/",
+                    // short story of syosetsu
+                    PageLink = @"https://yomou.syosetu.com/search.php?word=&notword=&genre=&type=t&mintime=&maxtime=&minlen=&maxlen=&min_globalpoint=&max_globalpoint=&minlastup=&maxlastup=&minfirstup=&maxfirstup=&order=hyoka",
+                    MainSectionPath = ".//div[@id='main_search']",
+                    IsLinkAbsolute = true,
+                    IsImageLinkAbsolute = true,
+                    ArticleContentPath = ".//div[@id='novel_honbun']"
+                },
+                new PageSource
+                {
+                    PageTitle = "nhk news",
+                    MainPageUrl = @"https://www3.nhk.or.jp",
+                    PageLink = @"https://www3.nhk.or.jp/news/catnew.html",
+                    MainSectionPath = ".//main[@id='main']",
+                    IsLinkAbsolute = false,
+                    IsImageLinkAbsolute = false,
+                    ArticleContentPath = ".//section[@class='module--detail-content']"
+                }
+            };
+            _dbContext.AddRange(list);
+            _dbContext.SaveChanges();
         }
 
         public List<Article> GetArticles(List<PageSource> pageSources)
@@ -46,6 +107,45 @@ namespace ImmersionHelper.Services
         public List<Article> GetArticles()
         {
             return _dbContext.Articles.ToList();
+        }
+
+        public List<Article> GetArticles(int limit)
+        {
+            return _dbContext.Articles.Take(limit).ToList();
+        }
+        public IQueryable<Article> GetArticlesQuery(string pageTitle, string pageSource)
+        {
+            return _dbContext.Articles
+                            .Include(x => x.PageSource)
+                            .Where(x => x.Title.Contains(pageTitle))
+                            .Where(x => x.PageSource.PageTitle == pageTitle);
+        }
+
+        public IQueryable<UserArticle> GetUserArticlesQuery(string userId, string pageTitle, string pageSource, string SortBy)
+        {
+            var list = _dbContext.UserArticles.Where(x => x.ApplicationUserId == userId);
+            if (!String.IsNullOrEmpty(pageTitle))
+                list = list.Where(x => x.Article.Title.Contains(pageTitle));
+            if (!String.IsNullOrEmpty(pageSource))
+                list = list.Where(x => x.Article.PageSource.PageTitle == pageSource);
+            switch (SortBy)
+            {
+                case "Most Word you know":
+                    list = list.OrderByDescending(x =>  x.WordKnowCount * 1d / x.Article.CharacterCount * 100);
+                    break;
+                case "Least Word you know":
+                    list = list.OrderBy(x => x.WordKnowCount * 1d / x.Article.CharacterCount * 100);
+                    break;
+                case "Most Character count":
+                    list = list.OrderByDescending(x => x.Article.CharacterCount);
+                    break;
+                case "Least Character count":
+                    list = list.OrderBy(x => x.Article.CharacterCount);
+                    break;
+                default:
+                    break;
+            }
+            return list;
         }
 
         public List<Article> GetArticles(PageSource pageSource)
@@ -77,12 +177,19 @@ namespace ImmersionHelper.Services
                             img.SetAttributeValue("src", pageSource.MainPageUrl + src);
                         }
                     }
+                    string contentPlain = String.Concat(mainContentNode.InnerText.Where(c => !Char.IsWhiteSpace(c)));
                     list.Add(new Article
                     {
-                        Content = mainContentNode.InnerText,
+                        Content = mainContentNode.InnerHtml,
                         Link = link,
                         PageSource = pageSource,
-                        Title = pageTitle
+                        Title = pageTitle,
+                        CharacterCount = contentPlain.Length,
+                        N1WordCount = _dictionaryServices.CountByCategory(contentPlain, "N1"),
+                        N2WordCount = _dictionaryServices.CountByCategory(contentPlain, "N2"),
+                        N3WordCount = _dictionaryServices.CountByCategory(contentPlain, "N3"),
+                        N4WordCount = _dictionaryServices.CountByCategory(contentPlain, "N4"),
+                        N5WordCount = _dictionaryServices.CountByCategory(contentPlain, "N5"),
                     });
                 }
             }
@@ -92,6 +199,22 @@ namespace ImmersionHelper.Services
             }
             
             return list;
+        }
+
+        public List<string> GetPageSourceName()
+        {
+            return _dbContext.PageSources.Select(x => x.PageTitle).ToList();
+        }
+
+        public bool IsArticleExist(int? id)
+        {
+            if (id == null) return false;
+            return (_dbContext.Articles.Any(x => x.Id == id.Value));
+        }
+
+        public Task<Article> GetArticle(int id)
+        {
+            return _dbContext.Articles.FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

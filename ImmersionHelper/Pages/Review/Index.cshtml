@@ -1,0 +1,16 @@
+﻿@page
+@model ImmersionHelper.Pages.Review.IndexModel
+@{
+    bool reviewable = Model.CountNew != 0 || Model.CountReview != 0;
+}
+
+<h1>Review</h1>
+
+<div class="fs-4 mt-3"><strong>New Word:</strong> @Model.CountNew</div>
+
+<div class="fs-4 mt-3"><strong>To Review today:</strong> @Model.CountReview</div>
+
+@if (reviewable)
+{
+    <a asp-page="Details" asp-route-side="Front" class="btn btn-primary fs-4 mt-3">Review now</a>
+}

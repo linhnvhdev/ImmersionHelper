@@ -1,0 +1,86 @@
+﻿@page "{side}"
+@model ImmersionHelper.Pages.Review.DetailsModel
+@{
+    ViewData["Title"] = Model.Side;
+}
+
+<a asp-page="Index" class="fs-4">Back</a>
+
+@if(Model.Side == "Finish")
+{
+    <h3>Congratulations, You have no word left to review today</h3>
+}
+
+@if(Model.Side == "Front")
+{
+    <div class="container">
+        <div>
+            <h4>Front:</h4>
+            <div class="fs-1">
+                @Model.UserVocab.Front
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    See Your Hint
+                </button>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body">
+                        @Model.UserVocab.Hint
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <a class="btn btn-primary"
+               asp-page="Details"
+               asp-route-side="Back">Check meaning</a>
+            </div>
+            
+        </div>
+    </div>
+}
+
+@if(Model.Side == "Back")
+{
+    <div class="container">
+        <div>
+            <h4>Front:</h4>
+            <input asp-for="UserVocab.Front" class="form-control" readonly />
+        </div>
+
+        <div class="row">
+            <h4>Back:</h4>
+            <div>
+                <textarea asp-for="@Model.UserVocab.Back" class="form-control" rows="6" readonly></textarea>
+            </div>
+        </div>
+
+        <div>
+            <h4>Hint:</h4>
+            <input asp-for="UserVocab.Hint" class="form-control" readonly />
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-1">
+                <form method="post">
+                    <input asp-for="VocabularyId" value="@Model.UserVocab.VocabularyId" hidden>
+                    <input asp-for="Action" value="Forget" hidden>
+                    <input type="submit" class="btn btn-danger" value="Forget">
+                </form>
+            </div>
+            <div class="col-md-2">
+                <form method="post">
+                    <input asp-for="VocabularyId" value="@Model.UserVocab.VocabularyId" hidden>
+                    <input asp-for="Action" value="Hard" hidden>
+                    <input type="submit" class="btn btn-primary" value="Remember hard">
+                </form>
+            </div>
+            <div class="col-md-2">
+                <form method="post">
+                    <input asp-for="VocabularyId" value="@Model.UserVocab.VocabularyId" hidden>
+                    <input asp-for="Action" value="Easy" hidden>
+                    <input type="submit" class="btn btn-success" value="Remember easy">
+                </form>
+            </div>
+        </div>
+    </div>
+}
