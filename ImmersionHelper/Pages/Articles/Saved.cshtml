@@ -1,8 +1,7 @@
 ﻿@page
-@model ImmersionHelper.Pages.Articles.IndexModel
-
+@model ImmersionHelper.Pages.Articles.SavedModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Saved Article";
     var prevDisabled = (Model.PageIndex == 1) ? "disabled" : "";
     var nextDisabled = (Model.PageIndex == Model.TotalPages) ? "disabled" : "";
 }
@@ -11,7 +10,7 @@
 
 <div class="m-4">
     <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#search-bar">Search</button>
-    <a asp-page="Index" class="btn btn-primary">Reset</a>
+    <a asp-page="Saved" class="btn btn-primary">Reset</a>
 </div>
 <div class="collapse" id="search-bar">
     <form method="get" class="m-4">
@@ -33,22 +32,15 @@
                 <option value="Least Character count">Least Character count</option>
             </select>
         </div>
-        <div class="form-group">
-            <label asp-for="FilterData.IsIncludeRead"></label>
-            <input asp-for="FilterData.IsIncludeRead" />
-        </div>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
-</div>
+</div
 
-@if (Model.IsAdmin)
-{
-    <a class="btn btn-success" asp-page="Create">Add new</a>
-}
+<br />
 
-<h3 class="mt-3">@Model.TotalCount Found</h3>
+<h3>@Model.TotalCount Found</h3>
 
-@foreach(var userArticle in Model.UserArticles)
+@foreach (var userArticle in Model.UserArticles)
 {
     <div class="container">
         <div class="row text-lg-start">
@@ -78,36 +70,28 @@
                     </p>
                 </div>
                 <div>
-                    <p><strong>Word you know: </strong>@userArticle.WordKnowCount (@(userArticle.WordKnowCount * 100f / userArticle.Article.CharacterCount)%)</p>
+                    <p><strong>Word you know: </strong>@userArticle.WordKnowCount</p>
                 </div>
-                @if (Model.IsAdmin)
-                {
-                    <a asp-page="Edit" asp-route-id="@userArticle.ArticleId">Edit</a>
-                    <span>|</span>
-                    <a asp-page="Delete" asp-route-id="@userArticle.ArticleId">Delete</a>
-                }
             </div>
         </div>
     </div>
     <hr />
 }
 
-<a asp-page="Index"
+<a asp-page="Saved"
    asp-route-pageIndex="@(Model.PageIndex - 1)"
    asp-route-FilterData.Title="@Model.FilterData.Title"
    asp-route-FilterData.PageSource="@Model.FilterData.PageSource"
    asp-route-FilterData.SortBy="@Model.FilterData.SortBy"
-   asp-route-FilterData.IsIncludeRead="@Model.FilterData.IsIncludeRead"
    class="btn btn-primary @prevDisabled">
     Previous
 </a>
 <span>Page @($"{Model.PageIndex} / {@Model.TotalPages}")</span>
-<a asp-page="Index"
+<a asp-page="Saved"
    asp-route-pageIndex="@(Model.PageIndex + 1)"
    asp-route-FilterData.Title="@Model.FilterData.Title"
    asp-route-FilterData.PageSource="@Model.FilterData.PageSource"
    asp-route-FilterData.SortBy="@Model.FilterData.SortBy"
-   asp-route-FilterData.IsIncludeRead="@Model.FilterData.IsIncludeRead"
    class="btn btn-primary @nextDisabled">
     Next
 </a>

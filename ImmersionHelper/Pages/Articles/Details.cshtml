@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Details";
+    var IsSavedValueString = Model.IsSaved ? "Unsave post" : "Save post";
 }
 
 <div>
@@ -23,6 +24,11 @@
             </div>
             <div class="main-content m-3 p-3" >
                 @Html.Raw(Model.CurArticle.Content)
+            </div>
+            <div>
+                <form method="post" asp-route-handler="SavePost" asp-route-id="@Model.CurArticle.Id">
+                    <input type="submit" class="btn btn-primary" value="@IsSavedValueString" />
+                </form>
             </div>
         </div>
         <div class="col-3 border border-3">

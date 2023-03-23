@@ -42,10 +42,6 @@ namespace ImmersionHelper.Pages.Articles
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
 
             _context.Attach(Article).State = EntityState.Modified;
 

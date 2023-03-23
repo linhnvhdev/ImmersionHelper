@@ -6,38 +6,45 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ImmersionHelper.Data;
+using ImmersionHelper.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace ImmersionHelper.Pages.Articles
 {
     public class CreateModel : PageModel
     {
-        private readonly ImmersionHelper.Data.ApplicationDbContext _context;
 
-        public CreateModel(ImmersionHelper.Data.ApplicationDbContext context)
+        private readonly ImmersionHelper.Data.ApplicationDbContext _context;
+        private UserManager<ApplicationUser> _userManager;
+        private ArticlesServices _articlesServices;
+
+        public CreateModel(ImmersionHelper.Data.ApplicationDbContext context, UserManager<ApplicationUser> userManager, ArticlesServices articlesServices)
         {
             _context = context;
+            _userManager = userManager;
+            _articlesServices = articlesServices;
         }
 
-        public IActionResult OnGet()
+        public void OnGet()
         {
-            return Page();
+            PageSourceList = _articlesServices.GetPageSourceName()
+                .Select(x => new SelectListItem
+                {
+                    Text = x,
+                    Value = x
+                }).ToList();
         }
 
         [BindProperty]
-        public Article Article { get; set; }
+        public string pageSource { get; set; }
+
+        public List<SelectListItem> PageSourceList { get; set; }
         
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-          if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            _context.Articles.Add(Article);
-            await _context.SaveChangesAsync();
-
+            await _articlesServices.AddArticles(pageSource);
             return RedirectToPage("./Index");
         }
     }

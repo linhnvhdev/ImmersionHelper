@@ -6,14 +6,20 @@
 @if (SignInManager.IsSignedIn(User))
 {
     ApplicationUser appUser = await UserManager.GetUserAsync(User);
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @($"{appUser?.FirstName} {appUser?.LastName}")</a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post" >
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-        </form>
-    </li>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            @($"{appUser?.FirstName} {appUser?.LastName}")
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <li><a class="dropdown-item text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">User profile</a></li>
+        <li>
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post" >
+                  <button type="submit" class="dropdown-item btn btn-link text-dark">Logout</button>
+            </form>
+        </li>
+        <li><a class="dropdown-item text-dark" asp-page="/Articles/Saved">Your saved articles</a></li>
+      </ul>
+    </div>
 }
 else
 {

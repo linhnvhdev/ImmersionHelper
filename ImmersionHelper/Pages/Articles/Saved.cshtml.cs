@@ -1,38 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using ImmersionHelper.Data;
 using ImmersionHelper.Services;
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.Design;
-using Microsoft.AspNetCore.Razor.Language.Extensions;
-using static ImmersionHelper.Pages.Vocabularies.IndexModel;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ImmersionHelper.Pages.Articles
 {
-    [Authorize]
-    public class IndexModel : PageModel
+    public class SavedModel : PageModel
     {
+
         private UserManager<ApplicationUser> _userManager;
         private ArticlesServices _articlesServices;
 
-        public IndexModel(UserManager<ApplicationUser> userManager, ArticlesServices articlesServices)
+        public SavedModel(UserManager<ApplicationUser> userManager, ArticlesServices articlesServices)
         {
             _userManager = userManager;
             _articlesServices = articlesServices;
         }
 
-        public List<UserArticle> UserArticles { get;set; } = default!;
+        public List<UserArticle> UserArticles { get; set; } = default!;
 
-        public int PageSize { get; private set; } = 10;
+        public int PageSize { get; private set; } = 3;
 
         public int PageIndex { get; private set; } = 1;
         public int TotalPages { get; private set; }
@@ -44,20 +36,16 @@ namespace ImmersionHelper.Pages.Articles
 
         public List<SelectListItem> PageSourceList { get; set; }
 
-        public bool IsAdmin { get; set; }
-
-        public async Task OnGetAsync(int pageIndex=1)
+        public async Task OnGetAsync(int pageIndex = 1)
         {
             PageIndex = pageIndex;
             var userId = _userManager.GetUserId(HttpContext.User);
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            IsAdmin = (await _userManager.GetRolesAsync(user)).Any(x => x == "Admin");
             if (FilterData.SortBy == null) FilterData.SortBy = "Most Word you know";
-            var articleList = _articlesServices.GetUserArticlesQuery(userId,
+            var articleList = _articlesServices.GetFavoriteUserArticlesQuery(userId,
                                                                     FilterData.Title,
                                                                     FilterData.PageSource,
                                                                     FilterData.SortBy,
-                                                                    FilterData.IsIncludeRead);
+                                                                    true);
             int totalCount = articleList.Count();
             int skip = (PageIndex - 1) * PageSize;
 
@@ -71,7 +59,7 @@ namespace ImmersionHelper.Pages.Articles
                     Text = x,
                     Value = x
                 }).ToList());
-            
+
 
             TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
 
@@ -90,11 +78,7 @@ namespace ImmersionHelper.Pages.Articles
 
             [Display(Name = "Sort by")]
             public string SortBy { get; set; }
-
-            [Display(Name = "Include Read?")]
-            public bool IsIncludeRead { get; set; } = false;
-
-
         }
+
     }
 }

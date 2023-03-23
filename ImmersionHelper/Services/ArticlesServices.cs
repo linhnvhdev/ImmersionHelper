@@ -2,7 +2,9 @@
 using ImmersionHelper.Data;
 using ImmersionHelper.Data.Migrations;
 using ImmersionHelper.Utilities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using System.Security.Policy;
 using System.Text;
 using System.Xml.Linq;
@@ -13,15 +15,17 @@ namespace ImmersionHelper.Services
     {
         private ApplicationDbContext _dbContext;
         private DictionaryServices _dictionaryServices;
+        private UserManager<ApplicationUser> _userManager;
         private HtmlWeb Web { get; set; } = new HtmlWeb
         {
             OverrideEncoding = Encoding.UTF8,
         };
 
-        public ArticlesServices(ApplicationDbContext dbContext, DictionaryServices dictionaryServices)
+        public ArticlesServices(ApplicationDbContext dbContext, DictionaryServices dictionaryServices, UserManager<ApplicationUser> userManager)
         {
             _dbContext = dbContext;
             _dictionaryServices = dictionaryServices;
+            _userManager = userManager;
         }
 
         public void InitData()
@@ -121,13 +125,17 @@ namespace ImmersionHelper.Services
                             .Where(x => x.PageSource.PageTitle == pageTitle);
         }
 
-        public IQueryable<UserArticle> GetUserArticlesQuery(string userId, string pageTitle, string pageSource, string SortBy)
+        public IQueryable<UserArticle> GetUserArticlesQuery(string userId, string pageTitle = "", string pageSource = "", string SortBy = "Most Word you know", bool IsIncludeRead = false)
         {
             var list = _dbContext.UserArticles.Where(x => x.ApplicationUserId == userId);
             if (!String.IsNullOrEmpty(pageTitle))
                 list = list.Where(x => x.Article.Title.Contains(pageTitle));
             if (!String.IsNullOrEmpty(pageSource))
                 list = list.Where(x => x.Article.PageSource.PageTitle == pageSource);
+            if (!IsIncludeRead)
+            {
+                list = list.Where(x => x.IsRead == false);
+            }
             switch (SortBy)
             {
                 case "Most Word you know":
@@ -146,6 +154,43 @@ namespace ImmersionHelper.Services
                     break;
             }
             return list;
+        }
+
+        public IQueryable<UserArticle> GetFavoriteUserArticlesQuery(string userId, string pageTitle, string pageSource, string SortBy, bool IsIncludeRead = false)
+        {
+            var list = _dbContext.UserArticles.Where(x => x.ApplicationUserId == userId && x.IsSaved);
+            if (!String.IsNullOrEmpty(pageTitle))
+                list = list.Where(x => x.Article.Title.Contains(pageTitle));
+            if (!String.IsNullOrEmpty(pageSource))
+                list = list.Where(x => x.Article.PageSource.PageTitle == pageSource);
+            if (!IsIncludeRead)
+            {
+                list = list.Where(x => x.IsRead == false);
+            }
+            switch (SortBy)
+            {
+                case "Most Word you know":
+                    list = list.OrderByDescending(x => x.WordKnowCount * 1d / x.Article.CharacterCount * 100);
+                    break;
+                case "Least Word you know":
+                    list = list.OrderBy(x => x.WordKnowCount * 1d / x.Article.CharacterCount * 100);
+                    break;
+                case "Most Character count":
+                    list = list.OrderByDescending(x => x.Article.CharacterCount);
+                    break;
+                case "Least Character count":
+                    list = list.OrderBy(x => x.Article.CharacterCount);
+                    break;
+                default:
+                    break;
+            }
+            return list;
+        }
+
+        public UserArticle GetUserArticle(string userId, int articleId)
+        {
+            var userArticle = _dbContext.UserArticles.Where(x => x.ApplicationUserId == userId && x.ArticleId == articleId).SingleOrDefault();
+            return userArticle;
         }
 
         public List<Article> GetArticles(PageSource pageSource)
@@ -178,6 +223,7 @@ namespace ImmersionHelper.Services
                         }
                     }
                     string contentPlain = String.Concat(mainContentNode.InnerText.Where(c => !Char.IsWhiteSpace(c)));
+                    if (contentPlain.Length == 0) continue;
                     list.Add(new Article
                     {
                         Content = mainContentNode.InnerHtml,
@@ -215,6 +261,96 @@ namespace ImmersionHelper.Services
         public Task<Article> GetArticle(int id)
         {
             return _dbContext.Articles.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> SavePost(UserArticle userArticle)
+        {
+            if (userArticle == null) return false;
+            if(_dbContext.UserArticles.SingleOrDefault(x => x.ApplicationUserId == userArticle.ApplicationUserId
+                                                        && x.ArticleId == userArticle.ArticleId) == null)
+            {
+                return false;
+            }
+            userArticle.IsSaved = !userArticle.IsSaved;
+            try
+            {
+                _dbContext.Attach(userArticle).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            return true;
+
+        }
+
+        public async Task<bool> ReadArticle(UserArticle userArticle)
+        {
+            if (userArticle == null) return false;
+            if (_dbContext.UserArticles.SingleOrDefault(x => x.ApplicationUserId == userArticle.ApplicationUserId
+                                                        && x.ArticleId == userArticle.ArticleId) == null)
+            {
+                return false;
+            }
+            if (userArticle.IsRead == true)
+                return true;
+            try
+            {
+                userArticle.IsRead = true;
+                _dbContext.Attach(userArticle).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            return true;
+
+        }
+
+        public async Task AddArticles(string pageSource)
+        {
+            PageSource ps = _dbContext.PageSources.SingleOrDefault(x => x.PageTitle == pageSource);
+            if(ps == null) return;
+            var list = GetArticles(ps);
+            var userIds = _userManager.Users.Select(x => x.Id).ToList();
+            using var transaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                foreach (var article in list)
+                {
+                    // exist
+                    if (_dbContext.Articles.Any(x => x.Link == article.Link))
+                    {
+                        continue;
+                    }
+                    await _dbContext.AddAsync(article);
+                    await _dbContext.SaveChangesAsync();
+                    foreach (var userId in userIds)
+                    {
+                        var userArticles = new UserArticle
+                        {
+                            ArticleId = article.Id,
+                            ApplicationUserId = userId,
+                            IsRightLevel = 0,
+                            IsRead = false,
+                            IsSaved = false,
+                            WordKnowCount = await _dictionaryServices.CountWordsKnowAsync(article.Content, userId)
+                        };
+                        _dbContext.Add(userArticles);
+                        _dbContext.SaveChanges();
+                    }
+                }
+                transaction.Commit();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
         }
     }
 }

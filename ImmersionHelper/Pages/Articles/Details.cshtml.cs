@@ -31,13 +31,23 @@ namespace ImmersionHelper.Pages.Articles
         [BindProperty]
         public AddFormInput Input { get; set; }
 
+        public bool IsSaved { get; set; }
+
         public async Task<IActionResult> OnGetAsync(int? id)
-        {
+        {   
             if (!_articlesServices.IsArticleExist(id))
             {
                 return NotFound();
             }
             CurArticle = await _articlesServices.GetArticle(id.Value);
+            var userId = _userManager.GetUserId(HttpContext.User);
+            IsSaved = false;
+            var userArticle = _articlesServices.GetUserArticle(userId, id.Value);
+            if (userArticle != null)
+            {
+                IsSaved = userArticle.IsSaved;
+                await _articlesServices.ReadArticle(userArticle);
+            }
             return Page();
         }
 
@@ -72,6 +82,18 @@ namespace ImmersionHelper.Pages.Articles
                 await _dictionaryServices.EditUserVocabulary(userVocabulary);
             }
             return new JsonResult(new {message = "Add successfully" }) { StatusCode= 200 };
+        }
+
+        public async Task<IActionResult> OnPostSavePost(int id)
+        {
+            CurArticle = await _articlesServices.GetArticle(id);
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var userArticle = _articlesServices.GetUserArticle(userId, id);
+            if (userArticle != null)
+            {
+                await _articlesServices.SavePost(userArticle);
+            }
+            return RedirectToPage("/Articles/Details", new {id = id});
         }
 
         public class AddFormInput

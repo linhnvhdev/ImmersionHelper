@@ -23,7 +23,7 @@ namespace ImmersionHelper.Pages.Review
 
         public int CountReview { get; set; }
 
-        public async Task OnGet()
+        public async Task OnGetAsync()
         {
             var userId = _userManager.GetUserId(HttpContext.User);
             CountNew = await _dictionaryServices.CountWordNew(userId);

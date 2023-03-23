@@ -11,6 +11,8 @@
 
         public bool IsSaved { get; set; }
 
+        public bool IsRead { get; set; }
+
         public int IsRightLevel { get; set; }
 
         public int WordKnowCount { get; set; }

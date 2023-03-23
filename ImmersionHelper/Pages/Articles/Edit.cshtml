@@ -7,13 +7,23 @@
 
 <h1>Edit</h1>
 
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
 <h4>Article</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Article.Id" />
+            <input type="hidden" asp-for="Article.CharacterCount" />
+            <input type="hidden" asp-for="Article.N1WordCount" />
+            <input type="hidden" asp-for="Article.N2WordCount" />
+            <input type="hidden" asp-for="Article.N3WordCount" />
+            <input type="hidden" asp-for="Article.N4WordCount" />
+            <input type="hidden" asp-for="Article.N5WordCount" />
             <div class="form-group">
                 <label asp-for="Article.Title" class="control-label"></label>
                 <input asp-for="Article.Title" class="form-control" />
@@ -21,7 +31,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Article.Content" class="control-label"></label>
-                <input asp-for="Article.Content" class="form-control" />
+                <textarea asp-for="Article.Content" class="form-control" rows="10"></textarea>
                 <span asp-validation-for="Article.Content" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -36,8 +46,17 @@
     </div>
 </div>
 
-<div>
-    <a asp-page="./Index">Back to List</a>
+<hr />
+
+<h4>Preview change: </h4>
+
+<hr />
+
+<div class="row mt-3">
+
+    <div>
+        @Html.Raw(Model.Article.Content)
+    </div>
 </div>
 
 @section Scripts {
