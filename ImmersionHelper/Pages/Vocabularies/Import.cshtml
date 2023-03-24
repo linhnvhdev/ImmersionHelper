@@ -1,0 +1,67 @@
+﻿@page
+@model ImmersionHelper.Pages.Vocabularies.ImportModel
+@{
+}
+
+<h1>Import file</h1>
+
+<div class="text-danger">@Model.Message</div>
+
+<form method="post" enctype="multipart/form-data">
+    <label asp-for="@Model.FileUploads"></label>
+    <input asp-for="@Model.FileUploads" />
+    <span asp-validation-formaction="@Model.FileUploads"></span>
+    <button class="btn btn-primary" asp-page="UploadMulti">Upload</button>
+</form>
+
+<br />
+
+@if (Model.ResultShow != null)
+{
+    <table class="table">
+        <tr>
+            @for (int i = 1; i <= Model.ResultShow[0].Count; i++)
+            {
+                <th>@i</th>
+            }
+        </tr>
+        @for (int i = 0; i < Model.ResultShow.Count; i++)
+        {
+            <tr>
+                @for (int j = 0; j < Model.ResultShow.ElementAt(i).Count; j++)
+                {
+                    <td>@Model.ResultShow[i][j]</td>
+                }
+            </tr>
+        }
+    </table>
+    <form method="post" asp-page-handler="Add">
+        <input type="hidden"  asp-for="ResultSerialize" value="@Model.ResultSerialize"/>
+        Column for Front: <select asp-for="columnForFront">
+            @for (int i = 1; i <= Model.ResultShow[0].Count; i++)
+            {
+                <option value="@(i-1)">@i</option>
+            }
+        </select>
+        <br>
+        Column for Back:
+        <select asp-for="columnForBack">
+            @for (int i = 1; i <= Model.ResultShow[0].Count; i++)
+            {
+                <option value="@(i-1)">@i</option>
+            }
+            </select>
+        <br>
+        Column for Hint:
+        <select asp-for="columnForHint">
+            <option value="-1">None</option>
+            @for (int i = 1; i <= Model.ResultShow[0].Count; i++)
+            {
+                <option value="@(i-1)">@i</option>
+            }
+        </select>
+        <br>
+        <input type="submit" value="Add to you vocabulary" class="btn btn-primary">
+    </form>
+}
+

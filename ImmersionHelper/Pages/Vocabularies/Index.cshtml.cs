@@ -32,7 +32,6 @@ namespace ImmersionHelper.Pages.Vocabularies
 
         [BindProperty(SupportsGet = true)]
         public FilterInput FilterData { get; set; }
-
         public void OnGet(int pageIndex = 1)
         {
             PageIndex = pageIndex;

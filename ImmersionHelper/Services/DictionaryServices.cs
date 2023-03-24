@@ -111,6 +111,15 @@ namespace ImmersionHelper.Services
                             .ToListAsync();
             return list;
         }
+        public async Task<List<Vocabulary>> FindVocabulariesExact(string searchString, int limit = 5)
+        {
+            var list = await _dbContext.Vocabularies
+                            .Where(x => (x.Word == searchString))
+                            .OrderBy(x => x.Word.Length)
+                            .Take(limit)
+                            .ToListAsync();
+            return list;
+        }
 
         public async Task AddUserVocabularies(UserVocabulary userVocab)
         {
@@ -323,6 +332,12 @@ namespace ImmersionHelper.Services
             VocabularyCategory categoryEnum = (VocabularyCategory)Enum.Parse(typeof(VocabularyCategory), level);
             list = await _dbContext.Vocabularies.Where(x => x.Category == categoryEnum).ToListAsync();
             return list;
+        }
+
+        public async Task<Vocabulary> GetVocabulary(int id)
+        {
+            var vocab = await _dbContext.Vocabularies.FirstOrDefaultAsync(x => x.Id == id);
+            return vocab;
         }
     }
 }
