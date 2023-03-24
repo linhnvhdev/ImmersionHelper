@@ -18,12 +18,14 @@ namespace ImmersionHelper.Pages.Articles
         private UserManager<ApplicationUser> _userManager;
         private ArticlesServices _articlesServices;
         private DictionaryServices _dictionaryServices;
+        private PostServices _postServices;
 
-        public DetailsModel(UserManager<ApplicationUser> userManager, ArticlesServices articlesServices, DictionaryServices dictionaryServices)
+        public DetailsModel(UserManager<ApplicationUser> userManager, ArticlesServices articlesServices, DictionaryServices dictionaryServices, PostServices postServices)
         {
             _userManager = userManager;
             _articlesServices = articlesServices;
             _dictionaryServices = dictionaryServices;
+            _postServices = postServices;
         }
 
         public Article CurArticle { get; set; }
@@ -32,6 +34,16 @@ namespace ImmersionHelper.Pages.Articles
         public AddFormInput Input { get; set; }
 
         public bool IsSaved { get; set; }
+
+        public List<Post> YourQuestions { get; set; }
+
+        public List<Post> Answers { get; set; }
+
+        [BindProperty]
+        public string QuestionTitle { get; set; }
+
+        [BindProperty]
+        public string Question { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {   
@@ -47,6 +59,12 @@ namespace ImmersionHelper.Pages.Articles
             {
                 IsSaved = userArticle.IsSaved;
                 await _articlesServices.ReadArticle(userArticle);
+            }
+            YourQuestions = await _postServices.GetUserArticleQuestionAsync(userId, id.Value);
+            Answers = new List<Post>();
+            foreach(var question in YourQuestions)
+            {
+                Answers.AddRange(await _postServices.GetAnswerPost(question.Id));
             }
             return Page();
         }
@@ -94,6 +112,22 @@ namespace ImmersionHelper.Pages.Articles
                 await _articlesServices.SavePost(userArticle);
             }
             return RedirectToPage("/Articles/Details", new {id = id});
+        }
+
+        public async Task<IActionResult> OnPostAskAsync(int id)
+        {
+            var post = new Post
+            {
+                Content = Question,
+                CreatorId = _userManager.GetUserId(HttpContext.User),
+                Title = QuestionTitle,
+                PostTime = DateTime.Now,
+                RelatedToArticleId = id,
+                Type = PostType.Question
+            };
+
+            await _postServices.AddPost(post);
+            return RedirectToPage("/Articles/Details", new { id = id });
         }
 
         public class AddFormInput

@@ -12,7 +12,7 @@
     
 <div class="container">
     <div class="row">
-        <div class="col-9 border border-3">
+        <div class="col-9 border border-bottom-0 border-3">
             <div class="p-3 text-center">
                 <h2>
                     @Model.CurArticle.Title
@@ -31,7 +31,7 @@
                 </form>
             </div>
         </div>
-        <div class="col-3 border border-3">
+        <div class="col-3 border border-bottom-0 border-3">
             <div class="position-fixed">
                 <h3>Search</h3>
                 <form method="post" id="add-vocabulary-form">
@@ -57,6 +57,49 @@
                 </form>
             </div>
         </div>
+    </div>
+</div>
+
+<hr />
+
+<div class="row">
+    <h3>Question:</h3>
+    @foreach(var item in Model.YourQuestions)
+    {
+        <a asp-page="/Posts/Details" asp-route-id="@item.Id">@item.Title</a>
+        <br>
+        @foreach(var answers in Model.Answers)
+        {
+            if (answers.ReferencePostId != item.Id) continue;
+            <div class="row">
+                <div class="col-1">
+                </div>
+                <div class="col-7">
+                    <div><strong>@(answers.Creator.FirstName + " " + answers.Creator.LastName)</strong></div>
+                    <div>
+                        <p>@answers.Content</p>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <hr />
+        }
+    }
+    <hr />
+    <div class="col-8">
+        <form method="post" asp-page-handler="Ask">
+            Ask Question:
+            <br />
+            Question title:
+            <br />
+            <input type="hidden" name="id" value="@Model.CurArticle.Id" />
+            <input type="text" asp-for="QuestionTitle" class="form-control"/>
+            <br />
+            Question detail:
+            <br />
+            <textarea asp-for="Question" rows="7" class="form-control"></textarea>
+            <input type="submit" value="submit" class="btn btn-primary" />
+        </form>
     </div>
 </div>
 

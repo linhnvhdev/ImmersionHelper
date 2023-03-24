@@ -12,6 +12,8 @@ namespace ImmersionHelper.Data
         public DbSet<UserArticle> UserArticles { get; set; }
         public DbSet<PageSource> PageSources  { get; set; }
 
+        public DbSet<Post> Posts { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

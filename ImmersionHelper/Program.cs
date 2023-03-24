@@ -16,6 +16,7 @@ builder.Services.AddScoped<IMyDictionary, JLPTDictionary>();
 builder.Services.AddScoped<IMyDictionary, JMDictDictionary>();
 builder.Services.AddScoped<DictionaryServices>();
 builder.Services.AddScoped<ArticlesServices>();
+builder.Services.AddScoped<PostServices>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

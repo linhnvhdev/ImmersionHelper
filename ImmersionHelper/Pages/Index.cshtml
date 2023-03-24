@@ -59,12 +59,13 @@ else
                 }
             </div>
             <div class="col-3">
-                <h3>Question: </h3>
+                <h3>Unanswered question: </h3>
                 <div>
-                    <a href="#">Link</a>
-                    <a href="#">Link</a>
-                    <a href="#">Link</a>
-                    <a href="#">Link</a>
+                    @foreach(var item in Model.Questions)
+                    {
+                        <a asp-page="/Posts/Details" asp-route-id="@item.Id">@item.Title</a>
+                        <br />
+                    }
                 </div>
             </div>
         </div>

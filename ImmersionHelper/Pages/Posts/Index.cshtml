@@ -1,0 +1,70 @@
+﻿@page
+@model ImmersionHelper.Pages.Posts.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Post[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Post[0].Creator)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Post[0].Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Post[0].RelatedToArticle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Post[0].PostTime)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Post) {
+        <tr>
+            <td>
+                <a asp-page="./Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Title)</a>
+            </td>
+            <td>
+                    @($"{item.Creator.FirstName} {item.Creator.LastName}")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type)
+            </td>
+            <td>
+                @if (item.RelatedToArticleId != null)
+                {
+                    <a asp-page="/Articles/Details" asp-route-id="@item.RelatedToArticleId">Article</a>
+                }
+                else
+                {
+                    <span>None</span>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PostTime)
+            </td>
+            <td>
+                    @if (Model.UserId == item.CreatorId)
+                    {
+                        <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
+                        <span>|</span>
+                        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

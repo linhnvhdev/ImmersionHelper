@@ -4,6 +4,7 @@ using ImmersionHelper.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ImmersionHelper.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230324125009_PostTitle")]
+    partial class PostTitle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -252,13 +254,7 @@ namespace ImmersionHelper.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("PostTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("ReferencePostId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RelatedToArticleId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -271,8 +267,6 @@ namespace ImmersionHelper.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
-
-                    b.HasIndex("RelatedToArticleId");
 
                     b.ToTable("Posts");
                 });
@@ -540,13 +534,7 @@ namespace ImmersionHelper.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ImmersionHelper.Data.Article", "RelatedToArticle")
-                        .WithMany()
-                        .HasForeignKey("RelatedToArticleId");
-
                     b.Navigation("Creator");
-
-                    b.Navigation("RelatedToArticle");
                 });
 
             modelBuilder.Entity("ImmersionHelper.Data.UserArticle", b =>

@@ -1,0 +1,58 @@
+﻿@page
+@model ImmersionHelper.Pages.Posts.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<a asp-page="Index">Back to List</a>
+
+<div class="bg-light row">
+    <h4>Post</h4>
+    <hr />
+    <div class="col-1">
+        @(Model.Post.Creator.FirstName + " " + Model.Post.Creator.LastName)
+    </div>
+    <div class="col-11">
+        <div><strong>@Model.Post.Title</strong></div>
+        <div><small>@Model.Post.PostTime</small></div>
+        <div class="p-4 border"><p>@Model.Post.Content</p></div>
+        @if (Model.Post.RelatedToArticleId != null)
+        {
+            <div>
+                Related to article:
+                <a asp-page="/Articles/Details" asp-route-id="@Model.Post.RelatedToArticleId">Article</a>
+            </div>
+        }
+    </div>
+</div>
+<hr />
+
+@if (Model.AnswerPosts != null)
+{
+    <h4>Answer</h4>
+    @foreach(var item in Model.AnswerPosts)
+    {
+        <div class="bg-light row">
+            <hr />
+            <div class="col-1">
+                @(item.Creator.FirstName + " " + item.Creator.LastName)
+            </div>
+            <div class="col-11">
+                <div><small>@item.PostTime</small></div>
+                <div class="p-4 border"><p>@item.Content</p></div>
+            </div>
+        </div>
+        <hr />
+    }
+}
+
+<div class="">
+    <form method="post">
+        <input type="hidden" name="id" value="@Model.Post.Id" />
+        Answer Post:
+        <br />
+        <textarea asp-for="Answer" rows="7" class="form-control"></textarea>
+        <input type="submit" value="submit" class="btn btn-primary" />
+    </form>
+</div>

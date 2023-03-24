@@ -11,5 +11,7 @@ namespace ImmersionHelper.Data
         public string LastName { get; set; }
         ICollection<UserVocabulary> UserVocabularies { get; set;}
         ICollection<UserArticle> UserArticles { get; set;}
+
+        ICollection<Post> Posts { get; set; }
     }
 }

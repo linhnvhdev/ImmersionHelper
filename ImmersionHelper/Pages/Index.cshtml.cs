@@ -15,13 +15,15 @@ namespace ImmersionHelper.Pages
         private UserManager<ApplicationUser> _userManager;
         private ArticlesServices _articlesServices;
         private DictionaryServices _dictionaryServices;
+        private PostServices _postServices;
 
-        public IndexModel(ILogger<IndexModel> logger, UserManager<ApplicationUser> userManager, ArticlesServices articlesServices, DictionaryServices dictionaryServices)
+        public IndexModel(ILogger<IndexModel> logger, UserManager<ApplicationUser> userManager, ArticlesServices articlesServices, DictionaryServices dictionaryServices, PostServices postServices)
         {
             _logger = logger;
             _userManager = userManager;
             _articlesServices = articlesServices;
             _dictionaryServices = dictionaryServices;
+            _postServices = postServices;
         }
 
         public bool IsEmptyVocabulary { get; set; }
@@ -33,6 +35,8 @@ namespace ImmersionHelper.Pages
         public int CountReview { get; set; }
 
         public int RecommedPostSize { get; set; } = 5;
+
+        public List<Post> Questions { get; set; }
 
         public async Task OnGet()
         {
@@ -46,6 +50,7 @@ namespace ImmersionHelper.Pages
             UserArticles = await articleList.Take(RecommedPostSize)
                                             .Include(x => x.Article)
                                             .ThenInclude(x => x.PageSource).ToListAsync();
+            Questions = await _postServices.GetUnanswerQuestion();
         }
     }
 }
