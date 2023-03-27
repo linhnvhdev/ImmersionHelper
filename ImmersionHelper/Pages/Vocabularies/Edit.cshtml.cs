@@ -9,9 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using ImmersionHelper.Data;
 using ImmersionHelper.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ImmersionHelper.Pages.Vocabularies
 {
+    [Authorize]
     public class EditModel : PageModel
     {
         private UserManager<ApplicationUser> _userManager;

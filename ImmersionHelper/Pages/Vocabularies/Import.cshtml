@@ -18,6 +18,8 @@
 
 @if (Model.ResultShow != null)
 {
+    <h3>@ViewData["Found"] found</h3>
+    <h3>Example data imported:</h3>
     <table class="table">
         <tr>
             @for (int i = 1; i <= Model.ResultShow[0].Count; i++)

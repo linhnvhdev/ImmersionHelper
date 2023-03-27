@@ -14,7 +14,7 @@ using System.Data;
 
 namespace ImmersionHelper.Pages.Posts
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class EditModel : PageModel
     {
         private readonly ImmersionHelper.Data.ApplicationDbContext _context;

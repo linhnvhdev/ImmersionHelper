@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using ImmersionHelper.Data;
 using ImmersionHelper.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ImmersionHelper.Pages.Articles
 {
+    [Authorize(Roles = "Admin")]
     public class CreateModel : PageModel
     {
 

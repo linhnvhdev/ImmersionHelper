@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ImmersionHelper.Data;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace ImmersionHelper.Pages.Articles
 {
+    [Authorize(Roles = "Admin")]
     public class DeleteModel : PageModel
     {
         private readonly ImmersionHelper.Data.ApplicationDbContext _context;

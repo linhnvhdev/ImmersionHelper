@@ -1,11 +1,13 @@
 using ImmersionHelper.Data;
 using ImmersionHelper.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ImmersionHelper.Pages.Vocabularies
 {
+    [Authorize]
     public class CreateRangeModel : PageModel
     {
         private UserManager<ApplicationUser> _userManager;

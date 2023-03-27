@@ -7,21 +7,23 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ImmersionHelper.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ImmersionHelper.Pages.Posts
 {
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly ImmersionHelper.Data.ApplicationDbContext _context;
         private UserManager<ApplicationUser> _userManager;
 
-        public IndexModel(ImmersionHelper.Data.ApplicationDbContext context,UserManager<ApplicationUser> userManager)
+        public IndexModel(ImmersionHelper.Data.ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        public IList<Post> Post { get;set; } = default!;
+        public IList<Post> Post { get; set; } = default!;
 
         public string UserId { get; set; }
 
@@ -33,6 +35,7 @@ namespace ImmersionHelper.Pages.Posts
                 Post = await _context.Posts
                 .Where(x => x.Type != PostType.Answer)
                 .Include(p => p.Creator)
+                .OrderBy(x => x.PostTime)
                 .ToListAsync();
             }
         }

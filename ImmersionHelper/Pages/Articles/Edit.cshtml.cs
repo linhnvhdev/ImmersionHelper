@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ImmersionHelper.Data;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace ImmersionHelper.Pages.Articles
 {
+    [Authorize(Roles = "Admin")]
     public class EditModel : PageModel
     {
         private readonly ImmersionHelper.Data.ApplicationDbContext _context;

@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using ImmersionHelper.Data;
 using ImmersionHelper.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ImmersionHelper.Pages.Posts
 {
+    [Authorize]
     public class DetailsModel : PageModel
     {
         private UserManager<ApplicationUser> _userManager;

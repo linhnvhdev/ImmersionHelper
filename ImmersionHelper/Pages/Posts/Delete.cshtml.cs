@@ -11,7 +11,7 @@ using System.Data;
 
 namespace ImmersionHelper.Pages.Posts
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class DeleteModel : PageModel
     {
         private readonly ImmersionHelper.Data.ApplicationDbContext _context;

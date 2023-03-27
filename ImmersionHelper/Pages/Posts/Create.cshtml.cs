@@ -13,7 +13,7 @@ using System.Data;
 
 namespace ImmersionHelper.Pages.Posts
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class CreateModel : PageModel
     {
         private UserManager<ApplicationUser> _userManager;

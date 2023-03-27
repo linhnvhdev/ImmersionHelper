@@ -1,5 +1,6 @@
 using ImmersionHelper.Data;
 using ImmersionHelper.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,6 +11,7 @@ using System.Xml.Linq;
 
 namespace ImmersionHelper.Pages.Vocabularies
 {
+    [Authorize]
     public class ImportModel : PageModel
     {
         private UserManager<ApplicationUser> _userManager;
@@ -82,6 +84,7 @@ namespace ImmersionHelper.Pages.Vocabularies
                 }
                 ResultShow = Result.Take(5).ToList();
                 ResultSerialize = JsonSerializer.Serialize(Result);
+                ViewData["Found"] = Result.Count;
             }
             else
             {
@@ -107,8 +110,8 @@ namespace ImmersionHelper.Pages.Vocabularies
                     Front = row[columnForFront],
                     Back = row[columnForBack],
                     Hint = columnForHint == -1 ? "None" : row[columnForHint],
-                    NextReviewInterval = 1,
-                    ReviewDate = DateTime.Today.AddDays(1)
+                    NextReviewInterval = 9999,
+                    ReviewDate = DateTime.Today.AddDays(9999)
                 };
                 await _dictionaryServices.AddUserVocabularies(userVocabulary);
             }

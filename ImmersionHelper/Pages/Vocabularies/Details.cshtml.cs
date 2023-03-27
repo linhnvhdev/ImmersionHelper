@@ -1,5 +1,6 @@
 using ImmersionHelper.Data;
 using ImmersionHelper.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ImmersionHelper.Pages.Vocabularies
 {
+    [Authorize]
     public class DetailsModel : PageModel
     {
         private UserManager<ApplicationUser> _userManager;
